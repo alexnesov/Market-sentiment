@@ -8,11 +8,24 @@ import collections
 import glob
 
 
-# Get list of relevant directories
-pathDirs = "C:\\Users\\alexa\\OneDrive\\Desktop\\Finviz downloads\\STRAT 1_21_05_2020"
-dir_list = os.listdir(pathDirs)
+
+# Get list of directory containing list of tickers we want to gather calls and puts from
+pathDirs = os.path.dirname(__file__)
+""" dir_list = os.listdir(pathDirs)
 dirs = [above for above in dir_list if "(above)" in above]
- 
+ """
+
+
+# Get calls and puts // Example with plug
+fin = yf.Ticker("PLUG")
+fin.options                 # List strike dates
+first_date = fin.options[0]
+opt = fin.option_chain(first_date)
+opt.calls
+
+
+
+# Creating empty dictionnaries
 DictOpenInterest_Call = collections.defaultdict(list)
 DictOpenInterest_Put = collections.defaultdict(list)
  
