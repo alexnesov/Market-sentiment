@@ -13,7 +13,6 @@ today_str = today.strftime("%Y-%m-%d")
 # Get list of directory containing list of tickers we want to gather calls and puts from
 pathDirs = f'{os.path.dirname(__file__)}/Calls_and_puts'
 pathDirs_today = f'{pathDirs}/{today}'
-
 listOfTickers = ["PLUG", "AAPL", "APPL", "TSLA"]
 
 
@@ -36,21 +35,18 @@ def get_calls_and_puts(ticker):
 DictOpenInterest_Call = collections.defaultdict(list)
 DictOpenInterest_Put = collections.defaultdict(list)
  
-for i in dirs:
-    # Get list of tickers for which we want the calls
-
-"""     extension = 'csv'
-    os.chdir(path)
-    csvs = glob.glob('*.{}'.format(extension)) """
-    calls = [calls for calls in csvs if "_calls" in calls]
-    puts = [puts for puts in csvs if "_puts" in puts]
+extension = 'csv'
+os.chdir(pathDirs_today)
+# glob gets us a list of all the csv files contained in the current directory
+csvs = glob.glob('*.{}'.format(extension)) 
+calls = [calls for calls in csvs if "_calls" in calls]
+puts = [puts for puts in csvs if "_puts" in puts]
  
     for tickCall in calls:
         # Calls
- 
-        df = pd.read_csv(f'C:\\Users\\alexa\\OneDrive\\Desktop\\Finviz downloads\\STRAT 1_21_05_2020\\{i}\\{tickCall}')
+        df = pd.read_csv(f'{pathDirs_today}/{tickCall}')
         symbol = str(tickCall.split('_')[0])
-        date = str(tickCall.split('- ')[1]).replace(' ', '')
+        date = str(tickCall.split('_')[1])
  
         CallsNotInMoney = df.loc[df["inTheMoney"] == False]
         Ncontracts = CallsNotInMoney['contractSymbol'].size
