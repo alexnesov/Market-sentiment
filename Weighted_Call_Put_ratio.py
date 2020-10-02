@@ -12,6 +12,7 @@ today_str = today.strftime("%Y-%m-%d")
 
 # Get list of directory containing list of tickers we want to gather calls and puts from
 pathDirs = f'{os.path.dirname(__file__)}/Calls_and_puts'
+pathDirs_today = f'{pathDirs}/{today}'
 
 listOfTickers = ["PLUG", "AAPL", "APPL", "TSLA"]
 
@@ -91,8 +92,8 @@ for i in dirs:
 def main():
     if not os.path.exists(pathDirs):
         os.mkdir(pathDirs)
-    if not os.path.exists(f"{pathDirs}/{today}")
-        os.mkdir(f"{pathDirs}/{today}")
+    if not os.path.exists(pathDirs_today):
+        os.mkdir(pathDirs_today)
     for ticker in listOfTickers:
         get_calls_and_puts(ticker)
 
