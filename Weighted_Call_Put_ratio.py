@@ -16,7 +16,7 @@ pathDirs_today = f'{pathDirs}/{today}'
 listOfTickers = ["PLUG", "AAPL", "APPL", "TSLA"]
 
 
-def get_calls_and_puts(ticker):
+def DL_calls_and_puts(ticker):
     try:
         fin = yf.Ticker(ticker)    
         print(ticker)
@@ -41,48 +41,54 @@ os.chdir(pathDirs_today)
 csvs = glob.glob('*.{}'.format(extension)) 
 calls = [calls for calls in csvs if "_calls" in calls]
 puts = [puts for puts in csvs if "_puts" in puts]
- 
-    for tickCall in calls:
-        # Calls
-        df = pd.read_csv(f'{pathDirs_today}/{tickCall}')
-        symbol = str(tickCall.split('_')[0])
-        date = str(tickCall.split('_')[1])
- 
-        CallsNotInMoney = df.loc[df["inTheMoney"] == False]
-        Ncontracts = CallsNotInMoney['contractSymbol'].size
-        openInterest = CallsNotInMoney['openInterest']
-        # Get coefficients
-        x=1
-        r = list(range(1,Ncontracts+1,1))
-        coefficients = [int(x**2+x-(x/2)) for x in r if x >=2]
-        coefficients = np.array([x]+coefficients)
-        CallsNotInMoney["weightedInterest"] = coefficients * openInterest.to_numpy()
-        colSum = float(CallsNotInMoney['weightedInterest'].sum())
-        DictOpenInterest_Call["Ticker"].append(symbol)
-        DictOpenInterest_Call["SumOpenInterest_Call"].append(colSum)
-        DictOpenInterest_Call["Date"].append(date)
- 
-    for tickPut in puts:
-        # Puts
-        df = pd.read_csv(f'C:\\Users\\alexa\\OneDrive\\Desktop\\Finviz downloads\\STRAT 1_21_05_2020\\{i}\\{tickPut}')
-        symbol = str(tickPut.split('_')[0])
-        date = str(tickPut.split('- ')[1]).replace(' ', '')
- 
-        PutsNotInMoney = df.loc[df["inTheMoney"] == False]
-        Ncontracts = PutsNotInMoney['contractSymbol'].size
-        openInterest = PutsNotInMoney['openInterest']
-        # Get coefficients
-        x=1
-        r = list(range(1,Ncontracts+1,1))
-        coefficients = [int(x**2+x-(x/2)) for x in r if x >=2]
-        coefficients = np.array([x]+coefficients)[::-1]
-        weighted = coefficients * PutsNotInMoney["openInterest"]
-        PutsNotInMoney["weightedInterest"] = pd.Series(weighted)
-        colSum = float(PutsNotInMoney['weightedInterest'].sum())
-        DictOpenInterest_Put["Ticker"].append(symbol)
-        DictOpenInterest_Put["SumOpenInterest_Put"].append(colSum)
-        DictOpenInterest_Put["Date"].append(date)
- 
+
+
+for tickCall in calls:
+    # Calls
+    df = pd.read_csv(f'{pathDirs_today}/{tickCall}')
+    symbol = str(tickCall.split('_')[0])
+    date = str(tickCall.split('_')[1])
+
+    CallsNotInMoney = df.loc[df["inTheMoney"] == False]
+    Ncontracts = CallsNotInMoney['contractSymbol'].size
+    openInterest = CallsNotInMoney['openInterest']
+    # Get coefficients
+    x=1
+    r = list(range(1,Ncontracts+1,1))
+    # Let's suppose we have 17 contacts above the currrent price (in money)
+    # We give a bigger weight to the contracts that aim a higher price
+    # the coefficients to choose are open to discussion
+    # Actually, the optimal calibration of the model should be statistically verified
+    # in a further back-test
+    coefficients = [int(x**2+x-(x/2)) for x in r if x >=2]
+    coefficients = np.array([x]+coefficients)
+    CallsNotInMoney["weightedInterest"] = coefficients * openInterest.to_numpy()
+    colSum = float(CallsNotInMoney['weightedInterest'].sum())
+    DictOpenInterest_Call["Ticker"].append(symbol)
+    DictOpenInterest_Call["SumOpenInterest_Call"].append(colSum)
+    DictOpenInterest_Call["Date"].append(date)
+
+for tickPut in puts:
+    # Puts
+    df = pd.read_csv(f'{pathDirs_today}/{tickCall}')
+    symbol = str(tickCall.split('_')[0])
+    date = str(tickCall.split('_')[1])
+
+    PutsNotInMoney = df.loc[df["inTheMoney"] == False]
+    Ncontracts = CallsNotInMoney['contractSymbol'].size
+    openInterest = CallsNotInMoney['openInterest']
+    # Get coefficients
+    x=1
+    r = list(range(1,Ncontracts+1,1))
+    coefficients = [int(x**2+x-(x/2)) for x in r if x >=2]
+    coefficients = np.array([x]+coefficients)[::-1]
+    weighted = coefficients * PutsNotInMoney["openInterest"]
+    PutsNotInMoney["weightedInterest"] = pd.Series(weighted)
+    colSum = float(PutsNotInMoney['weightedInterest'].sum())
+    DictOpenInterest_Put["Ticker"].append(symbol)
+    DictOpenInterest_Put["SumOpenInterest_Put"].append(colSum)
+    DictOpenInterest_Put["Date"].append(date)
+
 
 
 def main():
@@ -91,19 +97,16 @@ def main():
     if not os.path.exists(pathDirs_today):
         os.mkdir(pathDirs_today)
     for ticker in listOfTickers:
-        get_calls_and_puts(ticker)
+        DL_calls_and_puts(ticker)
 
 
 
 
 if __name__ == "__main__":
     main()
-
-
- 
-#Making proper dataframes
-CallDF = pd.DataFrame.from_dict(DictOpenInterest_Call)
-PutDF = pd.DataFrame.from_dict(DictOpenInterest_Put)
+    #Making proper dataframes out of the dictionnaries
+    CallDF = pd.DataFrame.from_dict(DictOpenInterest_Call)
+    PutDF = pd.DataFrame.from_dict(DictOpenInterest_Put)
  
 CallDF['Date'] = CallDF['Date'].str.replace('.csv','')
 PutDF['Date'] = PutDF['Date'].str.replace('.csv','')
