@@ -15,13 +15,16 @@ pathDirs = os.path.dirname(__file__)
 dirs = [above for above in dir_list if "(above)" in above]
  """
 
+listOfTickers = ['PLUG', 'APPL', 'TSLA']
 
-# Get calls and puts // Example with plug
-fin = yf.Ticker("PLUG")
-fin.options                 # List strike dates
-first_date = fin.options[0]
-opt = fin.option_chain(first_date)
-opt.calls
+
+
+def get_calls_and_puts():
+    fin = yf.Ticker(f"{ticker}")
+    fin.options                 # List strike dates
+    first_date = fin.options[0]
+    opt = fin.option_chain(first_date)
+    opt.calls
 
 
 
@@ -31,10 +34,10 @@ DictOpenInterest_Put = collections.defaultdict(list)
  
 for i in dirs:
     # Get list of tickers for which we want the calls
-    path = f'C:\\Users\\alexa\\OneDrive\\Desktop\\Finviz downloads\\STRAT 1_21_05_2020\\{i}'
-    extension = 'csv'
+
+"""     extension = 'csv'
     os.chdir(path)
-    csvs = glob.glob('*.{}'.format(extension))
+    csvs = glob.glob('*.{}'.format(extension)) """
     calls = [calls for calls in csvs if "_calls" in calls]
     puts = [puts for puts in csvs if "_puts" in puts]
  
@@ -80,6 +83,11 @@ for i in dirs:
         DictOpenInterest_Put["SumOpenInterest_Put"].append(colSum)
         DictOpenInterest_Put["Date"].append(date)
  
+if __name__ == "__main__":
+    def main():
+        get_calls_and_puts()
+
+
  
 #Making proper dataframes
 CallDF = pd.DataFrame.from_dict(DictOpenInterest_Call)
