@@ -10,21 +10,45 @@ import glob
 
 
 # Get list of directory containing list of tickers we want to gather calls and puts from
-pathDirs = os.path.dirname(__file__)
+pathDirs = f'{os.path.dirname(__file__)}/Calls_and_puts'
+
 """ dir_list = os.listdir(pathDirs)
 dirs = [above for above in dir_list if "(above)" in above]
  """
 
-listOfTickers = ['PLUG', 'APPL', 'TSLA']
+listOfTickers = ["PLUG", "AAPL", "APPL", "TSLA"]
 
 
 
-def get_calls_and_puts():
-    fin = yf.Ticker(f"{ticker}")
-    fin.options                 # List strike dates
-    first_date = fin.options[0]
-    opt = fin.option_chain(first_date)
-    opt.calls
+
+
+def get_calls_and_puts(ticker):
+    try:
+        fin = yf.Ticker(ticker)    
+        print(ticker)
+        first_date = fin.options[1]     # fin.options = List of strike dates
+        opt = fin.option_chain(first_date)
+        calls = opt.calls
+        puts = opt.puts
+        calls.to_csv(f'{pathDirs}/{ticker}_calls.csv')
+        puts.to_csv(f'{pathDirs}/{ticker}_puts.csv')
+    except IndexError:
+        print(f"IndexError for {ticker} (options informations probably unavailable)")
+        pass
+
+
+def main():
+    if not os.path.exists(pathDirs):
+        os.mkdir(pathDirs)
+    for ticker in listOfTickers:
+        get_calls_and_puts(ticker)
+
+
+main()
+
+
+
+
 
 
 
@@ -83,9 +107,11 @@ for i in dirs:
         DictOpenInterest_Put["SumOpenInterest_Put"].append(colSum)
         DictOpenInterest_Put["Date"].append(date)
  
+
+
+
 if __name__ == "__main__":
-    def main():
-        get_calls_and_puts()
+    main()
 
 
  
