@@ -1,25 +1,19 @@
 import yfinance as yf
 import pandas as pd
 import os
-from datetime import datetime, timedelta 
+from datetime import date, timedelta, datetime
 from time import gmtime, strftime
 import numpy as np
 import collections
 import glob
 
-
+today = date.today()
+today_str = today.strftime("%Y-%m-%d")
 
 # Get list of directory containing list of tickers we want to gather calls and puts from
 pathDirs = f'{os.path.dirname(__file__)}/Calls_and_puts'
 
-""" dir_list = os.listdir(pathDirs)
-dirs = [above for above in dir_list if "(above)" in above]
- """
-
 listOfTickers = ["PLUG", "AAPL", "APPL", "TSLA"]
-
-
-
 
 
 def get_calls_and_puts(ticker):
@@ -30,26 +24,11 @@ def get_calls_and_puts(ticker):
         opt = fin.option_chain(first_date)
         calls = opt.calls
         puts = opt.puts
-        calls.to_csv(f'{pathDirs}/{ticker}_calls.csv')
-        puts.to_csv(f'{pathDirs}/{ticker}_puts.csv')
+        calls.to_csv(f'{pathDirs}/{today}/{ticker}_{today}_calls.csv')
+        puts.to_csv(f'{pathDirs}/{today}/{ticker}_{today}_puts.csv')
     except IndexError:
         print(f"IndexError for {ticker} (options informations probably unavailable)")
         pass
-
-
-def main():
-    if not os.path.exists(pathDirs):
-        os.mkdir(pathDirs)
-    for ticker in listOfTickers:
-        get_calls_and_puts(ticker)
-
-
-main()
-
-
-
-
-
 
 
 # Creating empty dictionnaries
@@ -107,6 +86,16 @@ for i in dirs:
         DictOpenInterest_Put["SumOpenInterest_Put"].append(colSum)
         DictOpenInterest_Put["Date"].append(date)
  
+
+
+def main():
+    if not os.path.exists(pathDirs):
+        os.mkdir(pathDirs)
+    if not os.path.exists(f"{pathDirs}/{today}")
+        os.mkdir(f"{pathDirs}/{today}")
+    for ticker in listOfTickers:
+        get_calls_and_puts(ticker)
+
 
 
 
