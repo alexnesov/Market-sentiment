@@ -51,7 +51,6 @@ def List_of_Calls_and_Puts():
 def calculate_weighted_interest():
     
     calls, puts = List_of_Calls_and_Puts()
-    print(puts)
     for tickCall in calls:
         # Calls
         df = pd.read_csv(f'{pathDirs_today}/{tickCall}')
@@ -103,8 +102,15 @@ def calculate_weighted_interest():
 def dict_to_DF():
     CallDF = pd.DataFrame.from_dict(DictOpenInterest_Call)
     PutDF = pd.DataFrame.from_dict(DictOpenInterest_Put)
+    CallDF = CallDF.set_index(['Date','Ticker'])
+    PutDF = PutDF.set_index(['Date','Ticker'])
+    CallPutDF = pd.merge(CallDF, PutDF,how="left", on=["Date","Ticker"])
+    CallPutDF['CallPut_Ratio'] = CallDF['SumOpenInterest_Call'] / PutDF['SumOpenInterest_Put']
+ 
+ 
     print(CallDF)
     print(PutDF)
+    print(CallPutDF)
 
 
 def main():
@@ -121,19 +127,12 @@ def main():
 
 if __name__ == "__main__":
     main()
-    #Making proper dataframes out of the dictionnaries
 
 
  
-CallDF['Date'] = CallDF['Date'].str.replace('.csv','')
-PutDF['Date'] = PutDF['Date'].str.replace('.csv','')
-CallDF = CallDF.set_index(['Date','Ticker'])
-PutDF = PutDF.set_index(['Date','Ticker'])
- 
-CallPutDF = pd.merge(CallDF, PutDF,how="left", on=["Date","Ticker"])
-CallPutDF['CallPut_Ratio'] = CallDF['SumOpenInterest_Call'] / PutDF['SumOpenInterest_Put']
- 
- 
+
+
+"""
 # CALCULATION OF THE EVOLUTION OF WEIGHTED PUT/CALL RATIO
  
 # Get DISTINCT values of indexes into Series
@@ -150,3 +149,4 @@ DFevolutions = pd.concat([indexTickers, evol], axis=1)
 DFevolutions.rename(columns={DFevolutions.columns[1]:f'{indexDates[0]} to {indexDates[1]}'}, inplace=True)
  
 sizeIndexDates = indexDates.size
+"""
